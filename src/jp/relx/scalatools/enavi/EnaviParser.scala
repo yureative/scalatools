@@ -2,6 +2,9 @@ package jp.relx.scalatools.enavi
 import java.io.File
 import scala.io.Source
 import scala.annotation.tailrec
+import java.util.Currency
+import java.text.NumberFormat
+import java.util.Locale
 
 object EnaviParser {
   def fromCsv(csv: File): EnaviParser = {
@@ -46,18 +49,45 @@ class CsvEnaviParser(csv: File) extends EnaviParser {
       }
     }
 
-    rec(Nil, expenses.sortBy(_.item))
+    rec(Nil, expenses.sortBy(_.item)).
+      sortBy(_.amount)(Ordering[Double].reverse)
   }
 }
 
 class EnaviDecorator(expenses: List[Expense]) {
   def toHtml =
-    <html>
+    <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
         <meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8"/>
+        <style type="text/css">
+          <![CDATA[
+            h1 {
+                font-size: 115%;
+            }
+            table,
+            th,
+            td {
+                border: solid 1px;
+                border-collapse: collapse;
+            }
+            tr.even {
+                background-color: #DFEFFF;
+            }
+            th {
+                background-color: #DDDDDD;
+            }
+            td.amount {
+                text-align: right;
+            }
+            p.totalAmount {
+                font-size: 110%;
+            }
+          ]]>
+        </style>
       </head>
       <body>
-      {getTable}
+        {getTable}
+        <p class="totalAmount">合計支払額: {totalAmount(expenses)}</p>
       </body>
     </html>
 
@@ -67,12 +97,19 @@ class EnaviDecorator(expenses: List[Expense]) {
         <th>項目</th>
         <th>金額</th>
       </tr>
-      {for (expense <- expenses) yield
-      <tr>
-        <td>{expense.item}</td>
-        <td>{expense.amount}</td>
+      {for ((expense, idx) <- expenses.zipWithIndex) yield
+      <tr class={if (idx % 2 == 0) "even" else "odd"}>
+        <td class="item">{expense.item}</td>
+        <td class="amount">{toCurrency(expense.amount)}</td>
       </tr>
       }
     </table>
-  
+
+  private def toCurrency(number: Double) = {
+    lazy val formatter = NumberFormat.getCurrencyInstance(Locale.JAPAN)
+    formatter.format(number)
+  }
+
+  private def totalAmount(expenses: List[Expense]) =
+    toCurrency(expenses.foldLeft(0.0)(_ + _.amount))
 }

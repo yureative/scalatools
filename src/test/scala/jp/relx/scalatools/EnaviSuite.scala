@@ -1,14 +1,13 @@
-package test.jp.relx.scalatools
-import org.scalatest.FunSuite
-import jp.relx.scalatools.enavi.EnaviParser
+package jp.relx.scalatools.enavi
+
 import java.io.File
-import jp.relx.scalatools.enavi.EnaviDecorator
 import java.io.FileWriter
-import java.nio.channels.FileChannel
+
+import org.scalatest.FunSuite
 
 class EnaviSuite extends FunSuite {
   val INPUT_CSV    = new File("/path/to/enavi.csv")
-  val OUTPUT_XHTML = new File("/tmp/enavi.xhtml")
+  val OUTPUT_XHTML = new File("enavi.xhtml")
 
   test("parse csv") {
     val expenses = EnaviParser.fromCsv(INPUT_CSV).parse()

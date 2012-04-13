@@ -1,4 +1,5 @@
 package jp.relx.scalatools.enavi
+
 import java.io.File
 import scala.io.Source
 import scala.annotation.tailrec

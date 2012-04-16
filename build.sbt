@@ -1,4 +1,4 @@
-name := "ScalaTools"
+name := "scalatools"
 
 version := "0.0.1"
 
